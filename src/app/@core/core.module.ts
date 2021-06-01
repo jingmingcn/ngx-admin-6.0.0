@@ -128,6 +128,12 @@ export const NB_CORE_PROVIDERS = [
               return res.headers.get(options.token.key);
           }
         },
+        logout: {
+          endpoint: '',
+          redirect: {
+            success: 'auth/login',
+          }
+        },
       }),
     ],
     forms: {
@@ -135,6 +141,8 @@ export const NB_CORE_PROVIDERS = [
         redirectDelay: 0,
         rememberMe: false,
         //socialLinks: socialLinks,
+        defaultErrors: ['用户名或密码输入错误，请重试！'],
+        defaultMessages: ['登陆成功！'],
       },
       validation: {
         email: {
@@ -142,16 +150,17 @@ export const NB_CORE_PROVIDERS = [
           regexp:'.+',
         }
       },
+      
     },
   }).providers,
 
   NbSecurityModule.forRoot({
     accessControl: {
       student: {
-        view: ['stu-dashboard'],
+        view: ['dashboard','user','detect-file'],
       },
       teacher: {
-        view: ['tea-dashboard'],
+        view: ['dashboard'],
       },
       admin: {
         view: '*',

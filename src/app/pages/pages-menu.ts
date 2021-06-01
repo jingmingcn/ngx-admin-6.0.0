@@ -6,15 +6,29 @@ export const MENU_ITEMS: NbMenuItem[] = [
     icon: 'shopping-cart-outline',
     link: '/pages/dashboard',
     home: true,
+    data: {
+      permission: 'view',
+      resource: 'dashboard',
+    },
   },
   {
     title: 'IoT Dashboard',
     icon: 'home-outline',
     link: '/pages/iot-dashboard',
+  },
+  {
+    title: '查重检测论文上传',
+    icon: 'cloud-upload-outline',
+    link: '/pages/detect-file',
     data: {
       permission: 'view',
-      resource: 'iot-dashboard',
+      resource: 'detect-file',
     },
+  },
+  {
+    title: '毕业论文上传',
+    icon: 'cloud-upload-outline',
+    link: '/pages/layout/thesis-file',
   },
   {
     title: 'FEATURES',

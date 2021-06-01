@@ -28,7 +28,7 @@ export class PagesComponent implements OnInit{
           menuItem.hidden = !granted;
         });
       } else {
-        menuItem.hidden = false;
+        menuItem.hidden = true;
       }
       if (!menuItem.hidden && menuItem.children != null) {
         menuItem.children.forEach(item => {

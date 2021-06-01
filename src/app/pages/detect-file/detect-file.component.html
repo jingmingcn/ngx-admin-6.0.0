@@ -1,0 +1,55 @@
+<div class="steppers-container row">
+  <div class="col-md-12 col-lg-12 col-xxxl-12">
+    <nb-card>
+      <nb-card-body>
+        <nb-stepper #stepper>
+          <nb-step #step1 [stepControl]="firstForm" label="上传检测文件">
+            <form [formGroup]="firstForm" (ngSubmit)="onFirstSubmit()" class="step-container">
+              <angular-file-uploader #fileUpload1
+                    *ngIf="!detectFile || detectFile.status != '1'"
+                    [config]="afuConfig"
+                    [resetUpload]="resetVar"
+                    >
+              </angular-file-uploader>
+
+              <div *ngIf="detectFile">
+                <nb-actions size="medium">
+                  <nb-action (click)="download()" class="pointer">
+                    <nb-icon class="action-icon" icon="download-outline"></nb-icon>
+                    <span>下载检测文件</span>
+                  </nb-action>
+                </nb-actions>
+              </div>
+              
+              <button nbButton nbStepperNext>下一步</button>
+            </form>
+          </nb-step>
+          
+          <nb-step #step2 [stepControl]="thirdForm" label="等待指导老师审核">
+            <form [formGroup]="thirdForm" (ngSubmit)="onThirdSubmit()" class="step-container">
+              <button nbButton nbStepperPrevious>上一步</button>
+              <button nbButton nbStepperNext>下一步</button>
+            </form>
+          </nb-step>
+          <nb-step #step3 [stepControl]="thirdForm" [hidden]="!detectFile || detectFile.status != '1'" label="流程结束">
+            <div class="step-container">
+              <h3>流程结束!</h3>
+              <button nbButton nbStepperPrevious>上一步</button>
+            </div>
+          </nb-step>
+        </nb-stepper>
+      </nb-card-body>
+    </nb-card>
+    <nb-card *ngIf="detectFile">
+      <nb-card-header>
+        指导老师（{{detectFile.teaname}}）审核结果: 
+        <span *ngIf="detectFile && detectFile.status === '1'" class="text-success">通过</span>
+        <span *ngIf="detectFile && detectFile.status === '0'" class="text-warning">等待审核</span>
+        <span *ngIf="detectFile && detectFile.status === '-1'" class="text-danger">未通过</span>
+      </nb-card-header>
+      <nb-card-body>
+        <nb-alert outline="info">{{detectFile.comment}}</nb-alert>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

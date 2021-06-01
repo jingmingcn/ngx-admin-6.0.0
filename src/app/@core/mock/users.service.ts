@@ -1,6 +1,8 @@
-import { of as observableOf,  Observable } from 'rxjs';
+import { of as observableOf,  Observable, throwError } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { Contacts, RecentUsers, UserData } from '../data/users';
+import { Contacts, RecentUsers, UserData, User } from '../data/users';
+import { HttpClient } from '@angular/common/http';
+import { catchError, retry, map } from 'rxjs/operators';
 
 @Injectable()
 export class UserService extends UserData {
@@ -39,6 +41,12 @@ export class UserService extends UserData {
     { user: this.users.jack, type: this.types.mobile, time: this.time.setHours(8, 0)},
   ];
 
+  apiURL: string = 'api/';
+
+  constructor(private httpClient: HttpClient) {
+    super();
+  }
+
   getUsers(): Observable<any> {
     return observableOf(this.users);
   }
@@ -50,4 +58,27 @@ export class UserService extends UserData {
   getRecentUsers(): Observable<RecentUsers[]> {
     return observableOf(this.recentUsers);
   }
+
+  getCurrentUser(): Observable<User>{
+    return this.httpClient.get<User>(this.apiURL + 'auth/user')
+    .pipe(
+      retry(1),
+      catchError(this.handleError)
+    )
+  }
+
+  // Error handling 
+  handleError(error) {
+    let errorMessage = '';
+    if(error.error instanceof ErrorEvent) {
+      // Get client-side error
+      errorMessage = error.error.message;
+    } else {
+      // Get server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    window.alert(errorMessage);
+    return throwError(errorMessage);
+  }
+
 }

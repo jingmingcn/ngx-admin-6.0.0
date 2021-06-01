@@ -1,10 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NbMediaBreakpointsService, NbMenuService, NbSidebarService, NbThemeService } from '@nebular/theme';
+import { NbMediaBreakpointsService, NbMenuItem, NbMenuService, NbSidebarService, NbThemeService } from '@nebular/theme';
 
 import { UserData } from '../../../@core/data/users';
 import { LayoutService } from '../../../@core/utils';
-import { map, takeUntil } from 'rxjs/operators';
+import { filter, map, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { NbAuthResult, NbAuthService } from '@nebular/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'ngx-header',
@@ -16,6 +18,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
   userPictureOnly: boolean = false;
   user: any;
+  redirectDelay: number = 1000;
 
   themes = [
     {
@@ -38,22 +41,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   currentTheme = 'default';
 
-  userMenu = [ { title: 'Profile' }, { title: 'Log out' } ];
+  userMenu:NbMenuItem[] = [ 
+    { title: '个人信息', icon: 'person-outline' }, 
+    { title: '注销', icon: 'unlock-outline' } ];
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
               private themeService: NbThemeService,
               private userService: UserData,
               private layoutService: LayoutService,
-              private breakpointService: NbMediaBreakpointsService) {
+              private breakpointService: NbMediaBreakpointsService,
+              private authService: NbAuthService,
+              private router: Router) {
   }
 
   ngOnInit() {
     this.currentTheme = this.themeService.currentTheme;
 
-    this.userService.getUsers()
+    this.userService.getCurrentUser()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((users: any) => this.user = users.nick);
+      .subscribe((user: any) => this.user = user);
 
     const { xl } = this.breakpointService.getBreakpointsMap();
     this.themeService.onMediaQueryChange()
@@ -69,6 +76,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe(themeName => this.currentTheme = themeName);
+
+    this.menuService.onItemClick()
+      .pipe(
+        filter(({ tag }) => tag === 'user-context-menu'),
+        map(({ item: { title } }) => title),
+      )
+      .subscribe(title=>{
+        if(title === '注销'){
+          this.authService.logout('email').subscribe((result: NbAuthResult) => {
+            const redirect = result.getRedirect();
+            console.log(result)
+            if (redirect) {
+              setTimeout(() => {
+                return this.router.navigate([redirect]);
+              }, this.redirectDelay);
+            }
+          });
+        }
+      });
+  
+
   }
 
   ngOnDestroy() {

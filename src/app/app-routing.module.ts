@@ -11,10 +11,6 @@ import {
 } from '@nebular/auth';
 
 import {
-  AuthModule
-} from './auth/auth.module';
-
-import {
   LoginComponent
 } from './auth/login/login.component';
 
